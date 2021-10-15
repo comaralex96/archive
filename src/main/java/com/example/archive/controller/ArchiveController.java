@@ -38,6 +38,7 @@ public class ArchiveController {
         result.setMd5(md5);
         return ResponseEntity.ok()
                 .header(HttpHeaders.ACCEPT)
+                .eTag(md5)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(result);
     }
