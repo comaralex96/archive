@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 @RestController
 public class ArchiveController {
@@ -49,20 +50,21 @@ public class ArchiveController {
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
         }
-        File zipFile = null;
+        Optional<Path> zipFilePath = Optional.empty();
         try {
             Path tempDirectory = Files.createTempDirectory(Constants.directoryTempPrefix);
             File tempFile = File.createTempFile(Constants.fileTempPrefix, Constants.fileTempSuffix, tempDirectory.toFile());
             file.transferTo(tempFile);
-            zipFile = archiveService.archive(tempFile, file.getOriginalFilename(), md5);
+            zipFilePath = archiveService.archive(tempFile, file.getOriginalFilename(), md5);
             Files.delete(tempFile.toPath());
             Files.delete(tempDirectory);
         } catch (IOException e) {
             logger.error(e.getMessage() + "TempFileCreationException", e); // TODO Return exception. ZipFileCreationException
         }
-        if (zipFile == null) {
+        if (zipFilePath.isEmpty()) {
             return ResponseEntity.internalServerError().build();
         }
+        final File zipFile = zipFilePath.get().toFile();
         InputStreamResource result;
         try {
             result = new InputStreamResource(new FileInputStream(zipFile));

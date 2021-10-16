@@ -1,6 +1,8 @@
 package com.example.archive.service;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.util.Optional;
 
 public interface ArchiveService {
 
@@ -11,5 +13,5 @@ public interface ArchiveService {
      * @param fileName the fileName of zipped file to storage
      * @return zipped file
      */
-    File archive(File file, String fileName, String controlSum);
+    Optional<Path> archive(File file, String fileName, String controlSum);
 }
