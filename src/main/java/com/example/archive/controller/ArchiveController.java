@@ -1,6 +1,7 @@
 package com.example.archive.controller;
 
 import com.example.archive.common.Constants;
+import com.example.archive.common.ResponseZipFile;
 import com.example.archive.service.ArchiveService;
 import com.example.archive.service.DigestService;
 import org.slf4j.Logger;
@@ -22,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 @RestController
 public class ArchiveController {
@@ -50,28 +50,28 @@ public class ArchiveController {
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
         }
-        Optional<Path> zipFilePath = Optional.empty();
+        ResponseZipFile responseZipFile = ResponseZipFile.EMPTY;
         try {
             Path tempDirectory = Files.createTempDirectory(Constants.directoryTempPrefix);
             File tempFile = File.createTempFile(Constants.fileTempPrefix, Constants.fileTempSuffix, tempDirectory.toFile());
             file.transferTo(tempFile);
-            zipFilePath = archiveService.archive(tempFile, file.getOriginalFilename(), md5);
+            responseZipFile = archiveService.archive(tempFile, file.getOriginalFilename(), md5);
             Files.delete(tempFile.toPath());
             Files.delete(tempDirectory);
         } catch (IOException e) {
             logger.error(e.getMessage() + "TempFileCreationException", e); // TODO Return exception. ZipFileCreationException
         }
-        if (zipFilePath.isEmpty()) {
-            return ResponseEntity.internalServerError().build();
+        if (responseZipFile.getPath().isEmpty()) {
+            return ResponseEntity.status(responseZipFile.getHttpStatus()).build();
         }
-        final File zipFile = zipFilePath.get().toFile();
+        final File zipFile = responseZipFile.getPath().get().toFile();
         InputStreamResource result;
         try {
             result = new InputStreamResource(new FileInputStream(zipFile));
         } catch (FileNotFoundException e) {
             return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok()
+        return ResponseEntity.status(responseZipFile.getHttpStatus())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getOriginalFilename() + Constants.zipExtension)
                 .eTag(md5)
                 .contentLength(zipFile.length())

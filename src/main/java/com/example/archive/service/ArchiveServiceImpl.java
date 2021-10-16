@@ -1,9 +1,11 @@
 package com.example.archive.service;
 
+import com.example.archive.common.ResponseZipFile;
 import com.example.archive.storage.ZipFileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -27,9 +29,15 @@ public class ArchiveServiceImpl implements ArchiveService {
     }
 
     @Override
-    public Optional<Path> archive(File file, String fileName, String controlSum) {
+    public ResponseZipFile archive(File file, String fileName, String controlSum) {
+        if (archiveCache.containsKey(controlSum) && zipFileStorage.exists(controlSum)) {
+            return new ResponseZipFile(archiveCache.get(controlSum), HttpStatus.NOT_MODIFIED);
+        }
         Optional<Path> zipFilePath = zipFileStorage.store(file, fileName, controlSum);
-        zipFilePath.ifPresent(path -> archiveCache.put(controlSum, path));
-        return zipFilePath;
+        if (zipFilePath.isEmpty()) {
+            return ResponseZipFile.EMPTY;
+        }
+        archiveCache.put(controlSum, zipFilePath.get());
+        return new ResponseZipFile(zipFilePath.get(), HttpStatus.OK);
     }
 }

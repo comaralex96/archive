@@ -32,7 +32,7 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
     }
 
     public Optional<Path> store(File file, String fileName, String zipFileName) {
-        Path path = workspace.resolve(fileName.concat(Constants.zipExtension));
+        Path path = workspace.resolve(zipFileName.concat(Constants.zipExtension));
         File zipFile = path.toFile();
         try (InputStream inputStream = new FileInputStream(file);
              OutputStream outputStream = new FileOutputStream(zipFile);
@@ -48,6 +48,11 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
             return Optional.empty();
         }
         return Optional.of(path);
+    }
+
+    @Override
+    public boolean exists(String zipArchiveName) {
+        return Files.exists(workspace.resolve(zipArchiveName.concat(Constants.zipExtension)));
     }
 
     @PreDestroy
