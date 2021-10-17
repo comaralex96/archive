@@ -6,6 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.platform.commons.logging.Logger;
+import org.junit.platform.commons.logging.LoggerFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.FileSystemUtils;
 
@@ -27,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ZipFileSystemTempStorageTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(ZipFileSystemTempStorageTest.class);
 
     private final ZipFileStorage storage = new ZipFileSystemTempStorage();
 
@@ -164,7 +168,7 @@ public class ZipFileSystemTempStorageTest {
                 try {
                     FileSystemUtils.deleteRecursively(path);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error(e, e::getMessage);
                 }
             });
         } catch (IOException e) {

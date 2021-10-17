@@ -57,7 +57,7 @@ public class ArchiveController {
             Files.delete(tempFile.toPath());
             Files.delete(tempDirectory);
         } catch (IOException e) {
-            logger.error(e.getMessage() + "TempFileCreationException", e); // TODO Return exception. ZipFileCreationException
+            logger.error(e.getMessage(), e);
         }
         if (responseZipFile.getPath().isEmpty()) {
             return ResponseEntity.status(responseZipFile.getHttpStatus()).build();
@@ -71,6 +71,8 @@ public class ArchiveController {
         }
         return ResponseEntity.status(responseZipFile.getHttpStatus())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getOriginalFilename() + Constants.zipExtension)
+//                .cacheControl(CacheControl.maxAge(1, TimeUnit.SECONDS))
+//                .cacheControl(CacheControl.noStore())
                 .eTag(md5)
                 .contentLength(zipFile.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
