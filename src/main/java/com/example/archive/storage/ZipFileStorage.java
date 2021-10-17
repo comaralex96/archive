@@ -23,4 +23,12 @@ public interface ZipFileStorage {
      * @return {@code true} if the file exists; {@code false} if the file does not exist
      */
     boolean exists(String zipArchiveName);
+
+    /**
+     * Get {@see File} from storage
+     *
+     * @param zipArchiveName the name of zip archive
+     * @return the {@see File} from storage
+     */
+    File getFileByName(String zipArchiveName);
 }

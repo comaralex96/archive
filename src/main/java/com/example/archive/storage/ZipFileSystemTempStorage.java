@@ -32,6 +32,7 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
         workspace = Files.createTempDirectory(Constants.directoryTempPrefix);
     }
 
+    @Override
     public Optional<Path> store(File file, String fileName, String zipFileName) {
         Path path = workspace.resolve(zipFileName.concat(Constants.zipExtension));
         File zipFile = path.toFile();
@@ -53,7 +54,15 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
 
     @Override
     public boolean exists(String zipArchiveName) {
-        return Files.exists(workspace.resolve(zipArchiveName.concat(Constants.zipExtension)));
+        return Files.exists(workspace.resolve(zipArchiveName.concat(Constants.zipExtension)).normalize());
+    }
+
+    @Override
+    public File getFileByName(String zipArchiveName) {
+        if (!exists(zipArchiveName)) {
+            return null;
+        }
+        return workspace.resolve(zipArchiveName.concat(Constants.zipExtension)).normalize().toFile();
     }
 
     @PreDestroy
