@@ -1,7 +1,6 @@
 package com.example.archive.storage;
 
 import com.example.archive.common.Constants;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,8 +11,11 @@ import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -103,7 +105,11 @@ public class ZipFileSystemTempStorageTest {
     @DisplayName("Store file in directory as zipFile 'etag.zip' with inner file 'filename'")
     @ValueSource(strings = {"03a93ec0899bccfa901a58e07099348a"})
     public void testStoreFileAsZipFile(String etag) {
-        storage.store(inputFile, inputFile.getName(), etag);
+        Optional<Path> path = storage.store(inputFile, inputFile.getName(), etag);
+        if (path.isEmpty()) {
+            fail("Path is empty");
+        }
+        assertTrue(Files.exists(path.get()));
         assertTrue(storage.exists(etag));
         File storedFile = storage.getFileByName(etag);
         ZipFile zipFile;
@@ -121,6 +127,28 @@ public class ZipFileSystemTempStorageTest {
     }
 
     @Test
+    @DisplayName("Store null file")
+    public void testStoreNullFile() {
+        Optional<Path> nullPath = storage.store(null, "1.txt", "123");
+        assertTrue(nullPath.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Store not found file")
+    public void testStoreNotFoundFile() {
+        Optional<Path> store;
+        try {
+            File notFoundFile = new File(new URI("file:///test/test"));
+            assertFalse(Files.exists(notFoundFile.toPath()));
+            store = storage.store(notFoundFile, "2.txt", "321");
+        } catch (URISyntaxException e) {
+            fail(e);
+            return;
+        }
+        assertTrue(store.isEmpty());
+    }
+
+    @Test
     @DisplayName("Clean directory on destroy")
     public void testCleanDirectoryOnDestroy() {
         assertTrue(Files.exists(workspace));
@@ -128,7 +156,7 @@ public class ZipFileSystemTempStorageTest {
         assertFalse(Files.exists(workspace));
     }
 
-//    @AfterEach
+    //    @AfterEach
     @Disabled
     public void cleanDirectory() {
         try {
