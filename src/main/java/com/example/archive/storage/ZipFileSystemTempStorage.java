@@ -34,6 +34,9 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
 
     @Override
     public Optional<Path> store(File file, String fileName, String zipFileName) {
+        if (file == null) {
+            return Optional.empty();
+        }
         Path path = workspace.resolve(zipFileName.concat(Constants.zipExtension));
         File zipFile = path.toFile();
         try (InputStream inputStream = new FileInputStream(file);
