@@ -5,6 +5,7 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.FileSystemUtils;
 
 import javax.annotation.PreDestroy;
 import java.io.File;
@@ -58,7 +59,7 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
     @PreDestroy
     public void onDestroy() {
         try {
-            Files.delete(workspace);
+            FileSystemUtils.deleteRecursively(workspace);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
