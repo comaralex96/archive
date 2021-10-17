@@ -3,6 +3,7 @@ package com.example.archive.controller;
 import com.example.archive.common.Constants;
 import com.example.archive.storage.ZipFileStorage;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.RepeatedTest;
@@ -30,10 +31,13 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 public class ArchiveControllerTest {
@@ -47,6 +51,13 @@ public class ArchiveControllerTest {
             "Archive me!".getBytes()
     );
     private final String inputFileETag = "03a93ec0899bccfa901a58e07099348a";
+
+    private final MockMultipartFile emptyFile = new MockMultipartFile(
+            "emptyFile",
+            "empty.txt",
+            MediaType.TEXT_PLAIN_VALUE,
+            "".getBytes()
+    );
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -79,6 +90,56 @@ public class ArchiveControllerTest {
         sendRequestAndCheckResponse(HttpStatus.NOT_MODIFIED);
         if (repetitionInfo.getTotalRepetitions() == repetitionInfo.getCurrentRepetition()) {
             deleteInputFile();
+        }
+    }
+
+    @Test
+    @DisplayName("Archive no file and return 404 Not Found")
+    public void testArchiveNoFile() {
+        try {
+            mockMvc.perform(multipart("/zipFile"))
+                    .andExpect(status().isBadRequest());
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    @DisplayName("Archive null file and return IllegalArgumentException")
+    public void testArchiveNullFile() {
+        try {
+            //noinspection ConstantConditions
+            assertThrows(IllegalArgumentException.class, () ->
+                    mockMvc.perform(multipart("/zipFile").file(null))
+                            .andExpect(status().is5xxServerError()));
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    @DisplayName("Archive empty file and return 400 Bad Request")
+    public void testArchiveEmptyFile() {
+        try {
+            mockMvc.perform(multipart("/zipFile").file(emptyFile))
+                    .andExpect(status().isBadRequest());
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Disabled
+    @Test
+    @DisplayName("Archive null or empty file and return 404 Not Found")
+    private void testArchiveNullOrEmptyFiles(HttpStatus status) {
+        try {
+            //noinspection ConstantConditions
+            mockMvc.perform(multipart("/zipFile").file(null))
+                    .andExpect(status().isNotFound());
+            mockMvc.perform(multipart("/zipFile").file(emptyFile))
+                    .andExpect(status().isNotFound());
+        } catch (Exception e) {
+            fail(e);
         }
     }
 
