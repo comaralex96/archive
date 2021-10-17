@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>archive</artifactId>
-	<version>1.0.0-RELEASE</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>archive</name>
 	<description>Archive Rest Service</description>
 	<properties>
