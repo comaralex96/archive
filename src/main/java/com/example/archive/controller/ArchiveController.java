@@ -41,13 +41,11 @@ public class ArchiveController {
 
     @PostMapping(value = "/zipFile", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> archive(@RequestPart("file") MultipartFile file) {
-        if (file == null || file.getOriginalFilename() == null || file.getSize() == 0) {
+        if (file.getOriginalFilename() == null || file.getSize() == 0) {
             return ResponseEntity.notFound().build();
         }
-        String md5;
-        try {
-            md5 = digestService.md5AsHex(file);
-        } catch (IOException e) {
+        String md5 = digestService.md5AsHex(file);
+        if (md5 == null) {
             return ResponseEntity.internalServerError().build();
         }
         ResponseZipFile responseZipFile = ResponseZipFile.EMPTY;
