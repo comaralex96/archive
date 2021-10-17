@@ -21,10 +21,10 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     private final Map<String, Path> archiveCache = new HashMap<>();
 
-    private final ZipFileStorage zipFileStorage;
+    private ZipFileStorage zipFileStorage;
 
     @Autowired
-    public ArchiveServiceImpl(ZipFileStorage zipFileStorage) {
+    public void setZipFileStorage(ZipFileStorage zipFileStorage) {
         this.zipFileStorage = zipFileStorage;
     }
 
