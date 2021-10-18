@@ -4,8 +4,7 @@ import com.example.archive.common.Constants;
 import com.example.archive.common.ResponseZipFile;
 import com.example.archive.service.ArchiveService;
 import com.example.archive.service.DigestService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -25,10 +24,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 public class ArchiveController {
-
-    private final Logger logger = LoggerFactory.getLogger(ArchiveController.class);
 
     private final DigestService digestService;
 
@@ -59,7 +57,7 @@ public class ArchiveController {
             Files.delete(tempFile.toPath());
             Files.delete(tempDirectory);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         if (responseZipFile.getPath() == null) {
             return ResponseEntity.status(responseZipFile.getHttpStatus()).build();

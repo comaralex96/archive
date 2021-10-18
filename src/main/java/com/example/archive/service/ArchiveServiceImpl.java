@@ -2,8 +2,6 @@ package com.example.archive.service;
 
 import com.example.archive.common.ResponseZipFile;
 import com.example.archive.storage.ZipFileStorage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,8 +14,6 @@ import java.util.Optional;
 
 @Service
 public class ArchiveServiceImpl implements ArchiveService {
-
-    public static final Logger logger = LoggerFactory.getLogger(ArchiveServiceImpl.class);
 
     private final Map<String, Path> archiveCache = new HashMap<>();
 

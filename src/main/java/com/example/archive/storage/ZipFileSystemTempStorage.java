@@ -1,9 +1,8 @@
 package com.example.archive.storage;
 
 import com.example.archive.common.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.FileSystemUtils;
 
@@ -21,10 +20,9 @@ import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+@Slf4j
 @Repository
 public class ZipFileSystemTempStorage implements ZipFileStorage {
-
-    private static final Logger logger = LoggerFactory.getLogger(ZipFileSystemTempStorage.class);
 
     private final Path workspace;
 
@@ -46,10 +44,10 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
             IOUtils.copy(inputStream, zipOutputStream);
             zipOutputStream.closeEntry();
         } catch (FileNotFoundException e) {
-            logger.error("Input file not found. " + e.getMessage(), e);
+            log.error("Input file not found. " + e.getMessage(), e);
             return Optional.empty();
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return Optional.empty();
         }
         return Optional.of(path);
@@ -73,7 +71,7 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
         try {
             FileSystemUtils.deleteRecursively(workspace);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 }
