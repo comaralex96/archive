@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 @Service
 public class DigestServiceImpl implements DigestService {
@@ -16,14 +17,14 @@ public class DigestServiceImpl implements DigestService {
     public static final Logger logger = LoggerFactory.getLogger(DigestServiceImpl.class);
 
     @Override
-    public String md5AsHex(@NonNull MultipartFile file) {
+    public Optional<String> md5AsHex(@NonNull MultipartFile file) {
         StringBuilder md5 = new StringBuilder();
         try (InputStream is = file.getInputStream()) {
             DigestUtils.appendMd5DigestAsHex(is, md5);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
-            return null;
+            return Optional.empty();
         }
-        return md5.toString();
+        return Optional.of(md5.toString());
     }
 }

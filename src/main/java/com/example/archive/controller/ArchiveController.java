@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 @RestController
 public class ArchiveController {
@@ -44,8 +45,8 @@ public class ArchiveController {
         if (file.getOriginalFilename() == null || file.getSize() == 0) {
             return ResponseEntity.notFound().build();
         }
-        String md5 = digestService.md5AsHex(file);
-        if (md5 == null) {
+        Optional<String> md5 = digestService.md5AsHex(file);
+        if (md5.isEmpty()) {
             return ResponseEntity.internalServerError().build();
         }
         ResponseZipFile responseZipFile = ResponseZipFile.EMPTY;
@@ -54,7 +55,7 @@ public class ArchiveController {
             File tempFile =
                     File.createTempFile(Constants.FILE_TEMP_PREFIX, Constants.FILE_TEMP_SUFFIX, tempDirectory.toFile());
             file.transferTo(tempFile);
-            responseZipFile = archiveService.archive(tempFile, file.getOriginalFilename(), md5);
+            responseZipFile = archiveService.archive(tempFile, file.getOriginalFilename(), md5.get());
             Files.delete(tempFile.toPath());
             Files.delete(tempDirectory);
         } catch (IOException e) {
@@ -74,7 +75,7 @@ public class ArchiveController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getOriginalFilename() + Constants.ZIP_EXTENSION)
 //                .cacheControl(CacheControl.maxAge(1, TimeUnit.SECONDS))
 //                .cacheControl(CacheControl.noStore())
-                .eTag(md5)
+                .eTag(md5.get())
                 .contentLength(zipFile.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(result);
