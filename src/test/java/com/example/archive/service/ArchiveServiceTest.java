@@ -36,10 +36,10 @@ public class ArchiveServiceTest {
     private final Path zipPath = Path.of(etag.concat(Constants.ZIP_EXTENSION));
     private final Path zipOtherPath = Path.of(otherEtag.concat(Constants.ZIP_EXTENSION));
 
-    private final ResponseZipFile ok = new ResponseZipFile(zipPath, HttpStatus.OK);
-    private final ResponseZipFile otherOk = new ResponseZipFile(zipOtherPath, HttpStatus.OK);
-    private final ResponseZipFile notModified = new ResponseZipFile(zipPath, HttpStatus.NOT_MODIFIED);
-    private final ResponseZipFile otherNotModified = new ResponseZipFile(zipOtherPath, HttpStatus.NOT_MODIFIED);
+    private final ResponseZipFile ok = new ResponseZipFile(HttpStatus.OK, zipPath);
+    private final ResponseZipFile otherOk = new ResponseZipFile(HttpStatus.OK, zipOtherPath);
+    private final ResponseZipFile notModified = new ResponseZipFile(HttpStatus.NOT_MODIFIED, zipPath);
+    private final ResponseZipFile otherNotModified = new ResponseZipFile(HttpStatus.NOT_MODIFIED, zipOtherPath);
 
     @BeforeEach
     @DisplayName("Mock store method to get Path of inputFile")

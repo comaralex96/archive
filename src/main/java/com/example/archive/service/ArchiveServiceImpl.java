@@ -31,13 +31,19 @@ public class ArchiveServiceImpl implements ArchiveService {
     @Override
     public ResponseZipFile archive(File file, String fileName, String controlSum) {
         if (archiveCache.containsKey(controlSum) && zipFileStorage.exists(controlSum)) {
-            return new ResponseZipFile(archiveCache.get(controlSum), HttpStatus.NOT_MODIFIED);
+            return ResponseZipFile.builder()
+                    .httpStatus(HttpStatus.NOT_MODIFIED)
+                    .path(archiveCache.get(controlSum))
+                    .build();
         }
         Optional<Path> zipFilePath = zipFileStorage.store(file, fileName, controlSum);
         if (zipFilePath.isEmpty()) {
             return ResponseZipFile.EMPTY;
         }
         archiveCache.put(controlSum, zipFilePath.get());
-        return new ResponseZipFile(zipFilePath.get(), HttpStatus.OK);
+        return ResponseZipFile.builder()
+                .httpStatus(HttpStatus.OK)
+                .path(zipFilePath.get())
+                .build();
     }
 }

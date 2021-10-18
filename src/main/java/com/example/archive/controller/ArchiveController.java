@@ -61,10 +61,10 @@ public class ArchiveController {
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-        if (responseZipFile.getPath().isEmpty()) {
+        if (responseZipFile.getPath() == null) {
             return ResponseEntity.status(responseZipFile.getHttpStatus()).build();
         }
-        final File zipFile = responseZipFile.getPath().get().toFile();
+        final File zipFile = responseZipFile.getPath().toFile();
         InputStreamResource result;
         try {
             result = new InputStreamResource(new FileInputStream(zipFile));
