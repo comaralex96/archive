@@ -50,8 +50,9 @@ public class ArchiveController {
         }
         ResponseZipFile responseZipFile = ResponseZipFile.EMPTY;
         try {
-            Path tempDirectory = Files.createTempDirectory(Constants.directoryTempPrefix);
-            File tempFile = File.createTempFile(Constants.fileTempPrefix, Constants.fileTempSuffix, tempDirectory.toFile());
+            Path tempDirectory = Files.createTempDirectory(Constants.DIRECTORY_TEMP_PREFIX);
+            File tempFile =
+                    File.createTempFile(Constants.FILE_TEMP_PREFIX, Constants.FILE_TEMP_SUFFIX, tempDirectory.toFile());
             file.transferTo(tempFile);
             responseZipFile = archiveService.archive(tempFile, file.getOriginalFilename(), md5);
             Files.delete(tempFile.toPath());
@@ -70,7 +71,7 @@ public class ArchiveController {
             return ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.status(responseZipFile.getHttpStatus())
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getOriginalFilename() + Constants.zipExtension)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getOriginalFilename() + Constants.ZIP_EXTENSION)
 //                .cacheControl(CacheControl.maxAge(1, TimeUnit.SECONDS))
 //                .cacheControl(CacheControl.noStore())
                 .eTag(md5)

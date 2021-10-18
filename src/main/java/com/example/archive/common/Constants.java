@@ -2,9 +2,9 @@ package com.example.archive.common;
 
 public class Constants {
 
-    public static final String directoryTempPrefix = "archiveTemp.";
-    public static final String fileTempPrefix = "tmp.";
-    public static final String fileTempSuffix = ".uploading";
+    public static final String DIRECTORY_TEMP_PREFIX = "archiveTemp.";
+    public static final String FILE_TEMP_PREFIX = "tmp.";
+    public static final String FILE_TEMP_SUFFIX = ".uploading";
 
-    public static final String zipExtension = ".zip";
+    public static final String ZIP_EXTENSION = ".zip";
 }

@@ -152,7 +152,7 @@ public class ArchiveControllerTest {
     private MockHttpServletResponse sendFile() throws Exception {
         return mockMvc.perform(multipart("/zipFile").file(inputFile))
                 .andDo(print())
-                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + inputFile.getOriginalFilename() + Constants.zipExtension))
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + inputFile.getOriginalFilename() + Constants.ZIP_EXTENSION))
                 .andExpect(header().string(HttpHeaders.ETAG, "\"" + inputFileETag + "\""))
                 .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
                 .andReturn().getResponse();
@@ -170,7 +170,7 @@ public class ArchiveControllerTest {
         Path workspace = (Path) ReflectionTestUtils.getField(zipFileStorage, "workspace");
         assertNotNull(workspace);
         try {
-            Files.delete(workspace.resolve(inputFileETag.concat(Constants.zipExtension)).normalize());
+            Files.delete(workspace.resolve(inputFileETag.concat(Constants.ZIP_EXTENSION)).normalize());
         } catch (IOException e) {
             logger.error(e, e::getMessage);
         }

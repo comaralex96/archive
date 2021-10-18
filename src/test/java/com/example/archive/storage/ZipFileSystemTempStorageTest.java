@@ -59,13 +59,13 @@ public class ZipFileSystemTempStorageTest {
     public void testExistsFileInStorage() {
         Path tempPath;
         try {
-            tempPath = Files.createTempFile(workspace, "", Constants.zipExtension);
+            tempPath = Files.createTempFile(workspace, "", Constants.ZIP_EXTENSION);
         } catch (IOException e) {
             fail(e);
             return;
         }
         String originalFileName = tempPath.getFileName().toString();
-        String fileName = originalFileName.substring(0, originalFileName.length() - Constants.zipExtension.length());
+        String fileName = originalFileName.substring(0, originalFileName.length() - Constants.ZIP_EXTENSION.length());
         assertTrue(storage.exists(fileName));
         assertFalse(storage.exists("0" + fileName));
         assertFalse(storage.exists(fileName + "0"));
@@ -82,13 +82,13 @@ public class ZipFileSystemTempStorageTest {
     public void testGetFileFromStorage() {
         Path tempPath;
         try {
-            tempPath = Files.createTempFile(workspace, "", Constants.zipExtension);
+            tempPath = Files.createTempFile(workspace, "", Constants.ZIP_EXTENSION);
         } catch (IOException e) {
             fail(e);
             return;
         }
         String originalFileName = tempPath.getFileName().toString();
-        String fileName = originalFileName.substring(0, originalFileName.length() - Constants.zipExtension.length());
+        String fileName = originalFileName.substring(0, originalFileName.length() - Constants.ZIP_EXTENSION.length());
         File storedFile = storage.getFileByName(fileName);
         File inputFile = tempPath.toFile();
         assertEquals(inputFile, storedFile);
@@ -123,7 +123,7 @@ public class ZipFileSystemTempStorageTest {
             fail(e);
             return;
         }
-        Path filePath = workspace.resolve(etag.concat(Constants.zipExtension)).normalize();
+        Path filePath = workspace.resolve(etag.concat(Constants.ZIP_EXTENSION)).normalize();
         assertEquals(filePath.toString(), zipFile.getName());
         ZipEntry zipEntry = zipFile.getEntry(inputFile.getName());
         assertNotNull(zipEntry);

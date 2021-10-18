@@ -33,8 +33,8 @@ public class ArchiveServiceTest {
     private final String etag = "03a93ec0899bccfa901a58e07099348a";
     private final String otherEtag = "3497c1f843f8f66fa8b2011a601693c0";
 
-    private final Path zipPath = Path.of(etag.concat(Constants.zipExtension));
-    private final Path zipOtherPath = Path.of(otherEtag.concat(Constants.zipExtension));
+    private final Path zipPath = Path.of(etag.concat(Constants.ZIP_EXTENSION));
+    private final Path zipOtherPath = Path.of(otherEtag.concat(Constants.ZIP_EXTENSION));
 
     private final ResponseZipFile ok = new ResponseZipFile(zipPath, HttpStatus.OK);
     private final ResponseZipFile otherOk = new ResponseZipFile(zipOtherPath, HttpStatus.OK);
