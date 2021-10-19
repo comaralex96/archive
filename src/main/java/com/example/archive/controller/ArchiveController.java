@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -52,10 +54,9 @@ public class ArchiveController {
         } catch (FileNotFoundException e) {
             throw new FileNotFoundResponseStatusException(e.getMessage(), e);
         }
+        final String attachment = convertAttachment(file.getOriginalFilename() + Constants.ZIP_EXTENSION);
         return ResponseEntity.status(responseZipFile.getHttpStatus())
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getOriginalFilename() + Constants.ZIP_EXTENSION)
-//                .cacheControl(CacheControl.maxAge(1, TimeUnit.SECONDS))
-//                .cacheControl(CacheControl.noStore())
+                .header(HttpHeaders.CONTENT_DISPOSITION, attachment)
                 .eTag(md5)
                 .contentLength(zipFile.length())
                 .body(result);
@@ -87,5 +88,10 @@ public class ArchiveController {
         if (file.isEmpty()) {
             throw new EmptyFileResponseStatusException(file.getOriginalFilename());
         }
+    }
+
+    private String convertAttachment(String fileName) {
+        ByteBuffer buffer = StandardCharsets.UTF_8.encode("attachment; filename=".concat(fileName));
+        return StandardCharsets.UTF_8.decode(buffer).toString();
     }
 }
