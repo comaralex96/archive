@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -39,8 +39,8 @@ public class DigestServiceTest {
         //noinspection ConstantConditions
         assertThrows(NullPointerException.class, () -> digestService.md5AsHex(null));
         assertNotEquals(inputMd5Sum, otherMd5Sum);
-        assertThat(digestService.md5AsHex(inputFile)).hasValue(inputMd5Sum);
-        assertThat(digestService.md5AsHex(sameFile)).hasValue(inputMd5Sum);
-        assertThat(digestService.md5AsHex(otherFile)).hasValue(otherMd5Sum);
+        assertEquals(inputMd5Sum, digestService.md5AsHex(inputFile));
+        assertEquals(inputMd5Sum, digestService.md5AsHex(sameFile));
+        assertEquals(otherMd5Sum, digestService.md5AsHex(otherFile));
     }
 }

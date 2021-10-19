@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -43,17 +42,14 @@ public class ArchiveController {
     @PostMapping(value = "/zipFile", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> archive(@RequestPart("file") MultipartFile file) {
         validateFile(file);
-        Optional<String> md5 = digestService.md5AsHex(file);
-        if (md5.isEmpty()) {
-            return ResponseEntity.internalServerError().build();
-        }
+        String md5 = digestService.md5AsHex(file);
         ResponseZipFile responseZipFile = ResponseZipFile.EMPTY;
         try {
             Path tempDirectory = Files.createTempDirectory(Constants.DIRECTORY_TEMP_PREFIX);
             File tempFile =
                     File.createTempFile(Constants.FILE_TEMP_PREFIX, Constants.FILE_TEMP_SUFFIX, tempDirectory.toFile());
             file.transferTo(tempFile);
-            responseZipFile = archiveService.archive(tempFile, file.getOriginalFilename(), md5.get());
+            responseZipFile = archiveService.archive(tempFile, file.getOriginalFilename(), md5);
             Files.delete(tempFile.toPath());
             Files.delete(tempDirectory);
         } catch (IOException e) {
@@ -73,7 +69,7 @@ public class ArchiveController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getOriginalFilename() + Constants.ZIP_EXTENSION)
 //                .cacheControl(CacheControl.maxAge(1, TimeUnit.SECONDS))
 //                .cacheControl(CacheControl.noStore())
-                .eTag(md5.get())
+                .eTag(md5)
                 .contentLength(zipFile.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(result);

@@ -13,5 +13,5 @@ public interface DigestService {
      * @param file the file to compute from
      * @return the md5 sum of given {@code file}; or {@link Optional#empty()} if got {@link java.io.IOException}
      */
-    Optional<String> md5AsHex(@NonNull MultipartFile file);
+    String md5AsHex(@NonNull MultipartFile file);
 }
