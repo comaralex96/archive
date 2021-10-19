@@ -1,7 +1,9 @@
 package com.example.archive.storage;
 
 import com.example.archive.common.Constants;
-import lombok.extern.slf4j.Slf4j;
+import com.example.archive.exception.FileNotFoundResponseStatusException;
+import com.example.archive.exception.IOResponseStatusException;
+import lombok.NonNull;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.FileSystemUtils;
@@ -16,11 +18,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-@Slf4j
 @Repository
 public class ZipFileSystemTempStorage implements ZipFileStorage {
 
@@ -31,10 +31,7 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
     }
 
     @Override
-    public Optional<Path> store(File file, String fileName, String zipFileName) {
-        if (file == null) {
-            return Optional.empty();
-        }
+    public Path store(@NonNull File file, String fileName, String zipFileName) {
         Path path = workspace.resolve(zipFileName.concat(Constants.ZIP_EXTENSION));
         File zipFile = path.toFile();
         try (InputStream inputStream = new FileInputStream(file);
@@ -44,13 +41,11 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
             IOUtils.copy(inputStream, zipOutputStream);
             zipOutputStream.closeEntry();
         } catch (FileNotFoundException e) {
-            log.error("Input file not found. " + e.getMessage(), e);
-            return Optional.empty();
+            throw new FileNotFoundResponseStatusException(e.getMessage(), e);
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            return Optional.empty();
+            throw new IOResponseStatusException(e.getMessage(), e);
         }
-        return Optional.of(path);
+        return path;
     }
 
     @Override
@@ -71,7 +66,7 @@ public class ZipFileSystemTempStorage implements ZipFileStorage {
         try {
             FileSystemUtils.deleteRecursively(workspace);
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            throw new IOResponseStatusException(e.getMessage(), e);
         }
     }
 }

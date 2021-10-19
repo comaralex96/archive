@@ -10,7 +10,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class ArchiveServiceImpl implements ArchiveService {
@@ -32,14 +31,11 @@ public class ArchiveServiceImpl implements ArchiveService {
                     .path(archiveCache.get(controlSum))
                     .build();
         }
-        Optional<Path> zipFilePath = zipFileStorage.store(file, fileName, controlSum);
-        if (zipFilePath.isEmpty()) {
-            return ResponseZipFile.EMPTY;
-        }
-        archiveCache.put(controlSum, zipFilePath.get());
+        Path zipFilePath = zipFileStorage.store(file, fileName, controlSum);
+        archiveCache.put(controlSum, zipFilePath);
         return ResponseZipFile.builder()
                 .httpStatus(HttpStatus.OK)
-                .path(zipFilePath.get())
+                .path(zipFilePath)
                 .build();
     }
 }

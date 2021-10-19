@@ -18,7 +18,7 @@ public class DigestServiceImpl implements DigestService {
         try (InputStream is = file.getInputStream()) {
             DigestUtils.appendMd5DigestAsHex(is, md5);
         } catch (IOException e) {
-            throw new IOResponseStatusException(e.getMessage());
+            throw new IOResponseStatusException(e.getMessage(), e);
         }
         return md5.toString();
     }

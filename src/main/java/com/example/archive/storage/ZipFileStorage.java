@@ -2,7 +2,6 @@ package com.example.archive.storage;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Optional;
 
 public interface ZipFileStorage {
 
@@ -14,7 +13,7 @@ public interface ZipFileStorage {
      * @param zipArchiveName the name of zip archive without extension
      * @return {@link Path} of stored file
      */
-    Optional<Path> store(File file, String fileName, String zipArchiveName);
+    Path store(File file, String fileName, String zipArchiveName);
 
     /**
      * Tests whether a file exists.

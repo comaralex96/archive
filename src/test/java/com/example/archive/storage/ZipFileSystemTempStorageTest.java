@@ -1,6 +1,7 @@
 package com.example.archive.storage;
 
 import com.example.archive.common.Constants;
+import com.example.archive.exception.FileNotFoundResponseStatusException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -109,11 +110,8 @@ public class ZipFileSystemTempStorageTest {
     @DisplayName("Store file in directory as zipFile 'etag.zip' with inner file 'filename'")
     @ValueSource(strings = {"03a93ec0899bccfa901a58e07099348a"})
     public void testStoreFileAsZipFile(String etag) {
-        Optional<Path> path = storage.store(inputFile, inputFile.getName(), etag);
-        if (path.isEmpty()) {
-            fail("Path is empty");
-        }
-        assertTrue(Files.exists(path.get()));
+        Path path = storage.store(inputFile, inputFile.getName(), etag);
+        assertTrue(Files.exists(path));
         assertTrue(storage.exists(etag));
         File storedFile = storage.getFileByName(etag);
         ZipFile zipFile;
@@ -133,23 +131,20 @@ public class ZipFileSystemTempStorageTest {
     @Test
     @DisplayName("Store null file")
     public void testStoreNullFile() {
-        Optional<Path> nullPath = storage.store(null, "1.txt", "123");
-        assertTrue(nullPath.isEmpty());
+        assertThrows(NullPointerException.class, () -> storage.store(null, "1.txt", "123"));
     }
 
     @Test
     @DisplayName("Store not found file")
     public void testStoreNotFoundFile() {
-        Optional<Path> store;
         try {
             File notFoundFile = new File(new URI("file:///test/test"));
             assertFalse(Files.exists(notFoundFile.toPath()));
-            store = storage.store(notFoundFile, "2.txt", "321");
+            assertThrows(FileNotFoundResponseStatusException.class,
+                    () -> storage.store(notFoundFile, "2.txt", "321"));
         } catch (URISyntaxException e) {
             fail(e);
-            return;
         }
-        assertTrue(store.isEmpty());
     }
 
     @Test

@@ -5,9 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
-public class IOResponseStatusException extends ResponseStatusException {
-    public IOResponseStatusException(String reason, Throwable cause) {
-        super(HttpStatus.INTERNAL_SERVER_ERROR, reason, cause);
+public class FileNotFoundResponseStatusException extends ResponseStatusException {
+    public FileNotFoundResponseStatusException(String reason, Throwable cause) {
+        super(HttpStatus.NOT_FOUND, reason, cause);
         log.error(cause.getMessage(), cause);
     }
 }
