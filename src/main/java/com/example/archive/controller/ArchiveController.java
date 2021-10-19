@@ -3,6 +3,8 @@ package com.example.archive.controller;
 import com.example.archive.common.Constants;
 import com.example.archive.common.ResponseZipFile;
 import com.example.archive.exception.EmptyFileResponseStatusException;
+import com.example.archive.exception.FileNotFoundResponseStatusException;
+import com.example.archive.exception.IOResponseStatusException;
 import com.example.archive.exception.NullParamResponseStatusException;
 import com.example.archive.service.ArchiveService;
 import com.example.archive.service.DigestService;
@@ -43,27 +45,13 @@ public class ArchiveController {
     public ResponseEntity<Resource> archive(@RequestPart("file") MultipartFile file) {
         validateFile(file);
         String md5 = digestService.md5AsHex(file);
-        ResponseZipFile responseZipFile = ResponseZipFile.EMPTY;
-        try {
-            Path tempDirectory = Files.createTempDirectory(Constants.DIRECTORY_TEMP_PREFIX);
-            File tempFile =
-                    File.createTempFile(Constants.FILE_TEMP_PREFIX, Constants.FILE_TEMP_SUFFIX, tempDirectory.toFile());
-            file.transferTo(tempFile);
-            responseZipFile = archiveService.archive(tempFile, file.getOriginalFilename(), md5);
-            Files.delete(tempFile.toPath());
-            Files.delete(tempDirectory);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-        if (responseZipFile.getPath() == null) {
-            return ResponseEntity.status(responseZipFile.getHttpStatus()).build();
-        }
+        ResponseZipFile responseZipFile = archiveAndGetFile(file, md5);
         final File zipFile = responseZipFile.getPath().toFile();
         InputStreamResource result;
         try {
             result = new InputStreamResource(new FileInputStream(zipFile));
         } catch (FileNotFoundException e) {
-            return ResponseEntity.internalServerError().build();
+            throw new FileNotFoundResponseStatusException(e.getMessage(), e);
         }
         return ResponseEntity.status(responseZipFile.getHttpStatus())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getOriginalFilename() + Constants.ZIP_EXTENSION)
@@ -73,6 +61,22 @@ public class ArchiveController {
                 .contentLength(zipFile.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(result);
+    }
+
+    private ResponseZipFile archiveAndGetFile(MultipartFile file, String fileName) {
+        ResponseZipFile responseZipFile;
+        try {
+            Path tempDirectory = Files.createTempDirectory(Constants.DIRECTORY_TEMP_PREFIX);
+            File tempFile =
+                    File.createTempFile(Constants.FILE_TEMP_PREFIX, Constants.FILE_TEMP_SUFFIX, tempDirectory.toFile());
+            file.transferTo(tempFile);
+            responseZipFile = archiveService.archive(tempFile, file.getOriginalFilename(), fileName);
+            Files.delete(tempFile.toPath());
+            Files.delete(tempDirectory);
+        } catch (IOException e) {
+            throw new IOResponseStatusException(e.getMessage(), e);
+        }
+        return responseZipFile;
     }
 
     private void validateFile(MultipartFile file) {
