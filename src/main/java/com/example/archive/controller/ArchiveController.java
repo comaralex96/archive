@@ -2,6 +2,8 @@ package com.example.archive.controller;
 
 import com.example.archive.common.Constants;
 import com.example.archive.common.ResponseZipFile;
+import com.example.archive.exception.EmptyFileResponseStatusException;
+import com.example.archive.exception.NullParamResponseStatusException;
 import com.example.archive.service.ArchiveService;
 import com.example.archive.service.DigestService;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +42,7 @@ public class ArchiveController {
 
     @PostMapping(value = "/zipFile", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> archive(@RequestPart("file") MultipartFile file) {
-        if (file.getOriginalFilename() == null || file.getSize() == 0) {
-            return ResponseEntity.notFound().build();
-        }
+        validateFile(file);
         Optional<String> md5 = digestService.md5AsHex(file);
         if (md5.isEmpty()) {
             return ResponseEntity.internalServerError().build();
@@ -77,5 +77,17 @@ public class ArchiveController {
                 .contentLength(zipFile.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(result);
+    }
+
+    private void validateFile(MultipartFile file) {
+        if (file == null) {
+            throw new NullParamResponseStatusException("file");
+        }
+        if (file.getOriginalFilename() == null) {
+            throw new NullParamResponseStatusException(file.getName());
+        }
+        if (file.isEmpty()) {
+            throw new EmptyFileResponseStatusException(file.getOriginalFilename());
+        }
     }
 }
