@@ -1,7 +1,7 @@
 package com.example.archive.service;
 
 import com.example.archive.common.Constants;
-import com.example.archive.common.ResponseZipFile;
+import com.example.archive.controller.data.ZippedFile;
 import com.example.archive.storage.ZipFileStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,11 +26,11 @@ public class ArchiveServiceTest {
     private final String etag = "03a93ec0899bccfa901a58e07099348a";
     private final String otherEtag = "3497c1f843f8f66fa8b2011a601693c0";
     private final Path zipPath = Path.of(etag.concat(Constants.ZIP_EXTENSION));
-    private final ResponseZipFile ok = new ResponseZipFile(HttpStatus.OK, zipPath);
-    private final ResponseZipFile notModified = new ResponseZipFile(HttpStatus.NOT_MODIFIED, zipPath);
+    private final ZippedFile ok = new ZippedFile(HttpStatus.OK, zipPath);
+    private final ZippedFile notModified = new ZippedFile(HttpStatus.NOT_MODIFIED, zipPath);
     private final Path zipOtherPath = Path.of(otherEtag.concat(Constants.ZIP_EXTENSION));
-    private final ResponseZipFile otherOk = new ResponseZipFile(HttpStatus.OK, zipOtherPath);
-    private final ResponseZipFile otherNotModified = new ResponseZipFile(HttpStatus.NOT_MODIFIED, zipOtherPath);
+    private final ZippedFile otherOk = new ZippedFile(HttpStatus.OK, zipOtherPath);
+    private final ZippedFile otherNotModified = new ZippedFile(HttpStatus.NOT_MODIFIED, zipOtherPath);
     @Mock
     private ZipFileStorage storage;
     @InjectMocks
@@ -46,22 +46,22 @@ public class ArchiveServiceTest {
         when(storage.exists(otherEtag)).thenReturn(true);
     }
 
-    private ResponseZipFile archiveInputFile() {
+    private ZippedFile archiveInputFile() {
         return archiveService.archive(file, file.getName(), etag);
     }
 
-    private ResponseZipFile archiveSameFile() {
+    private ZippedFile archiveSameFile() {
         return archiveService.archive(sameFile, sameFile.getName(), etag);
     }
 
-    private ResponseZipFile archiveOtherFile() {
+    private ZippedFile archiveOtherFile() {
         return archiveService.archive(otherFile, otherFile.getName(), otherEtag);
     }
 
     @Test
     @DisplayName("Archive file and get status 200 Ok")
     public void testArchiveFile() {
-        ResponseZipFile response = archiveInputFile();
+        ZippedFile response = archiveInputFile();
         assertEquals(ok, response);
     }
 
@@ -69,14 +69,14 @@ public class ArchiveServiceTest {
     @DisplayName("Archive file N times to get status 304 Not Modified")
     public void testArchiveFileNTimes() {
         testArchiveFile();
-        ResponseZipFile response = archiveInputFile();
+        ZippedFile response = archiveInputFile();
         assertEquals(notModified, response);
     }
 
     @Test
     @DisplayName("Archive different files")
     public void testArchiveDifferentFiles() {
-        ResponseZipFile response;
+        ZippedFile response;
         response = archiveInputFile();
         assertEquals(ok, response);
         response = archiveOtherFile();

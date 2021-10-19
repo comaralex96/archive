@@ -1,13 +1,15 @@
 package com.example.archive.controller;
 
 import com.example.archive.common.Constants;
-import com.example.archive.common.ResponseZipFile;
+import com.example.archive.controller.data.ZippedFile;
+import com.example.archive.converter.ZippedFileConverter;
 import com.example.archive.exception.EmptyFileResponseStatusException;
 import com.example.archive.exception.FileNotFoundResponseStatusException;
 import com.example.archive.exception.IOResponseStatusException;
 import com.example.archive.exception.NullParamResponseStatusException;
 import com.example.archive.service.ArchiveService;
 import com.example.archive.service.DigestService;
+import com.example.archive.view.data.ResponseZipFile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -46,7 +48,8 @@ public class ArchiveController {
     public ResponseEntity<Resource> archive(@RequestPart("file") MultipartFile file) {
         validateFile(file);
         String md5 = digestService.md5AsHex(file);
-        ResponseZipFile responseZipFile = archiveAndGetFile(file, md5);
+        ZippedFile zippedFile = archiveAndGetFile(file, md5);
+        final ResponseZipFile responseZipFile = ZippedFileConverter.convertTo(zippedFile);
         final File zipFile = responseZipFile.getPath().toFile();
         InputStreamResource result;
         try {
@@ -62,20 +65,20 @@ public class ArchiveController {
                 .body(result);
     }
 
-    private ResponseZipFile archiveAndGetFile(MultipartFile file, String fileName) {
-        ResponseZipFile responseZipFile;
+    private ZippedFile archiveAndGetFile(MultipartFile file, String fileName) {
+        ZippedFile zippedFile;
         try {
             Path tempDirectory = Files.createTempDirectory(Constants.DIRECTORY_TEMP_PREFIX);
             File tempFile =
                     File.createTempFile(Constants.FILE_TEMP_PREFIX, Constants.FILE_TEMP_SUFFIX, tempDirectory.toFile());
             file.transferTo(tempFile);
-            responseZipFile = archiveService.archive(tempFile, file.getOriginalFilename(), fileName);
+            zippedFile = archiveService.archive(tempFile, file.getOriginalFilename(), fileName);
             Files.delete(tempFile.toPath());
             Files.delete(tempDirectory);
         } catch (IOException e) {
             throw new IOResponseStatusException(e.getMessage(), e);
         }
-        return responseZipFile;
+        return zippedFile;
     }
 
     private void validateFile(MultipartFile file) {

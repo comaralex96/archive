@@ -1,6 +1,6 @@
 package com.example.archive.service;
 
-import com.example.archive.common.ResponseZipFile;
+import com.example.archive.controller.data.ZippedFile;
 import org.springframework.http.HttpStatus;
 
 import java.io.File;
@@ -14,11 +14,9 @@ public interface ArchiveService {
      *
      * <p> If file was found in cache return {@link HttpStatus#NOT_MODIFIED} and path to zipped file
      *
-     * <p> Otherwise return {@link HttpStatus#INTERNAL_SERVER_ERROR} and null path
-     *
      * @param file     the file to zip
      * @param fileName the fileName of zipped file to storage
-     * @return {@link ResponseZipFile} with zipped file path and response status
+     * @return {@link ZippedFile} with zipped file path and response status
      */
-    ResponseZipFile archive(File file, String fileName, String controlSum);
+    ZippedFile archive(File file, String fileName, String controlSum);
 }

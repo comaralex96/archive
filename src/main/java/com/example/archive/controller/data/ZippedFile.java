@@ -1,4 +1,4 @@
-package com.example.archive.common;
+package com.example.archive.controller.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.nio.file.Path;
 @Value
 @AllArgsConstructor
 @Builder
-public class ResponseZipFile {
+public class ZippedFile {
     @NonNull
     HttpStatus httpStatus;
     @NonNull
