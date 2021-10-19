@@ -154,7 +154,7 @@ public class ArchiveControllerTest {
                 .andDo(print())
                 .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + inputFile.getOriginalFilename() + Constants.ZIP_EXTENSION))
                 .andExpect(header().string(HttpHeaders.ETAG, "\"" + inputFileETag + "\""))
-                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+                .andExpect(content().contentType(Constants.APPLICATION_ZIP_VALUE))
                 .andReturn().getResponse();
     }
 

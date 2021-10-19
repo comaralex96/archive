@@ -7,4 +7,6 @@ public class Constants {
     public static final String FILE_TEMP_SUFFIX = ".uploading";
 
     public static final String ZIP_EXTENSION = ".zip";
+
+    public static final String APPLICATION_ZIP_VALUE = "application/zip";
 }

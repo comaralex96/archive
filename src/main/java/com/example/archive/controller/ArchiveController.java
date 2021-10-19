@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -41,7 +40,7 @@ public class ArchiveController {
         this.archiveService = archiveService;
     }
 
-    @PostMapping(value = "/zipFile", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @PostMapping(value = "/zipFile", produces = Constants.APPLICATION_ZIP_VALUE)
     public ResponseEntity<Resource> archive(@RequestPart("file") MultipartFile file) {
         validateFile(file);
         String md5 = digestService.md5AsHex(file);
@@ -59,7 +58,6 @@ public class ArchiveController {
 //                .cacheControl(CacheControl.noStore())
                 .eTag(md5)
                 .contentLength(zipFile.length())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(result);
     }
 
